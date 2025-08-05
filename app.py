@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 
 def parse_expenses(expense_string):
     try:
@@ -28,9 +27,9 @@ def parse_expenses(expense_string):
     except:
         return 0, []
 
-def calculate_split(asad_expenses, f_expenses):
-    total_asad, asad_items = parse_expenses(asad_expenses)
+def calculate_split(f_expenses, asad_expenses):
     total_f, f_items = parse_expenses(f_expenses)
+    total_asad, asad_items = parse_expenses(asad_expenses)
     net_difference = total_asad - total_f
     return {
         'asad_owes': total_asad,
@@ -41,17 +40,17 @@ def calculate_split(asad_expenses, f_expenses):
     }
 
 def main():
-    st.title("Expense Splitter: Asad & F")
+    st.title("Expense Splitter: F & Asad")
 
-    asad_input = st.text_area("Paste Asad's Expenses (include 'Asad owe:')", height=150)
     f_input = st.text_area("Paste F's Expenses (include 'F owe:')", height=150)
+    asad_input = st.text_area("Paste Asad's Expenses (include 'Asad owe:')", height=150)
 
     if st.button("Calculate"):
-        result = calculate_split(asad_input, f_input)
+        result = calculate_split(f_input, asad_input)
 
         st.subheader("Results")
-        st.write(f"Asad owes F: ${result['asad_owes']:.2f}")
         st.write(f"F owes Asad: ${result['f_owes']:.2f}")
+        st.write(f"Asad owes F: ${result['asad_owes']:.2f}")
 
         if result['net_difference'] > 0:
             st.success(f"Final: Asad pays F ${result['net_difference']:.2f}")
@@ -61,13 +60,13 @@ def main():
             st.info("No payment needed. You're even!")
 
         # Show tables
-        if result['asad_items']:
-            st.markdown("### Asad's Expenses")
-            st.dataframe(pd.DataFrame(result['asad_items']))
-
         if result['f_items']:
             st.markdown("### F's Expenses")
             st.dataframe(pd.DataFrame(result['f_items']))
+
+        if result['asad_items']:
+            st.markdown("### Asad's Expenses")
+            st.dataframe(pd.DataFrame(result['asad_items']))
 
 if __name__ == "__main__":
     main()
